@@ -1,0 +1,8 @@
+﻿qwertyuiopasdfghjkl;zxcvbnm,./      QWERTY
+qwfpgjluy;arstdhneiozxcvbkm,./      Colemak
+ypoujkdlcwinea,mhtsrqz/.;bfgvx      MTGAP
+pmfjxqwou;cnshrdtaeiyvblzgk,/.      Duality
+wpfjxqmou;cnshrdtaeiybvlzgk,/.      G3
+,uomxqgflbieahdctsnr;/.yzpvwkj      G3-2
+y,epvqfdlkioatcrshnw;./gzjxbmu      V2
+u,erx;mdc/waosfghtnik.qjzlvbpy      V3
