@@ -1,14 +1,67 @@
 #NoEnv
 #MaxHotkeysPerInterval, 999999
+#SingleInstance, force
 SetBatchLines, -1
 SetKeyDelay, -1
 SetStoreCapslockMode, Off
-; keys := "pmfjxqwou;cnshrdtaeiyvblzgk,./"  ; Duality
-keys := "wpfjxqmou;cnshrdtaeiybvlzgk,./"    ; G3 (Duality Improved)
-keyarr := StrSplit(keys)
-isEnabled := False
+; keys := "pmfjxqwou;cnshrdtaeiyvblzgk,./"      ; Duality
+; keys := "wpfjxqmou;cnshrdtaeiybvlzgk,./"      ; G3 (Duality+)
+keys := {}
+Loop, Read, %A_ScriptDir%\layouts.txt
+{
+    RegExMatch(A_LoopReadLine, "O)([\w;,./]+)\s*(.+)", match)
+    keys[match.2] := match.1
+}
+for layouts in keys
+    keyChoices .= layouts . "|"
+keyarr := StrSplit("qwertyuiopasdfghjkl;zxcvbnm,./")    ; Temporary hardcoding
+isEnabled := False                                      ; Toggles the mappings on/off
+swapNum := ""
+DIMENSION = 40                                          ; Dimensions of the keys
+PADDING = 10                                            ; Padding between the keys
 
-Gui, New, -Resize +MinSize500x150, Hotswapper
+Gui, New, +AlwaysOnTop, Keyboard Layout Designer
+Gui, Font, s14
+Gui, Margin, %PADDING%, %PADDING%
+Gui, Add, Button, % "h" DIMENSION " w" DIMENSION " gAssignKey v1", % keyarr[1]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v2",  % keyarr[2]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v3",  % keyarr[3]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v4",  % keyarr[4]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v5",  % keyarr[5]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v6",  % keyarr[6]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v7",  % keyarr[7]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v8",  % keyarr[8]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v9",  % keyarr[9]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v10", % keyarr[10]
+Gui, Add, Button, % "hp wp x"  PADDING " gAssignKey v11", % keyarr[11]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v12", % keyarr[12]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v13", % keyarr[13]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v14", % keyarr[14]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v15", % keyarr[15]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v16", % keyarr[16]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v17", % keyarr[17]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v18", % keyarr[18]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v19", % keyarr[19]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v20", % keyarr[20]
+Gui, Add, Button, % "hp wp x"  PADDING " gAssignKey v21", % keyarr[21]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v22", % keyarr[22]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v23", % keyarr[23]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v24", % keyarr[24]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v25", % keyarr[25]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v26", % keyarr[26]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v27", % keyarr[27]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v28", % keyarr[28]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v29", % keyarr[29]
+Gui, Add, Button, % "hp wp x+" PADDING " gAssignKey v30", % keyarr[30]
+Gui, Font
+Gui, Add, Button, wp, &Apply
+Gui, Add, DropDownList, % "vlayoutChoice w" DIMENSION*3 " x+-" DIMENSION*4 + PADDING, %keyChoices%
+Gui, Add, Button, % "yp x" PADDING, &Copy
+Gui, Add, Button, % "x+"   PADDING, &Edit
+Gui, Add, Button, % "x+"   PADDING, &Reload
+
+Gui, Add, StatusBar
+Gui, Show
 
 #If (isEnabled)
 *VK51::Send % "{Blind}{" keyarr[1] " DownR}"
@@ -77,12 +130,69 @@ CapsLock::BackSpace
 LShift & RShift::
 RShift & LShift::
 SetCapsLockState, % GetKeyState("CapsLock", "T") ? "Off" : "On"
-Return
+return
 
 ~LShift::
 ~RShift::
 SetCapsLockState, Off
-Return
+return
 #If
 
 Pause::isEnabled := !isEnabled
+
+AssignKey:
+global swapNum, keyarr
+; If no keys are declared but two buttons are pressed consecutively, swap them.
+Input ; interrupts any preexisting threads, if they exist
+if (swapNum) {
+    swap := keyarr[A_GuiControl]
+    keyarr[A_GuiControl] := keyarr[swapNum]
+    keyarr[swapNum] := swap
+    SB_SetText("Swapped key " swapNum " with " A_GuiControl)
+    GuiControl,, %A_GuiControl%, % keyarr[A_GuiControl]
+    GuiControl,, %swapNum%, % keyarr[swapNum]
+    ; ToolTip % A_GuiControl "_ " keyarr[A_GuiControl] "_ " temp "_ " swapNum "_ " ErrorLevel
+    swapNum := ""
+    return
+}
+swapNum := A_GuiControl
+SB_SetText("Press a key to reassign")
+Input, temp, L1
+; Interrupted by a new thread
+if (ErrorLevel == "NewInput") 
+    return
+
+keyarr[A_GuiControl] := temp
+GuiControl,, %A_GuiControl%, %temp%
+SB_SetText("")
+; ToolTip % A_GuiControl "_ " keyarr[A_GuiControl] "_ " temp "_ " swapNum "_ " ErrorLevel
+swapNum := ""
+return
+
+ButtonApply:
+Gui, Submit, NoHide
+if (!layoutChoice)
+    return
+keyarr := StrSplit(keys[layoutChoice])
+Loop, 30
+    GuiControl,, %A_Index%, % keyarr[A_Index]
+return
+
+ButtonEdit:
+Run, %A_ScriptDir%\layouts.txt
+return
+
+ButtonCopy:
+clip := ""
+Loop % keyarr.Length()
+    clip .= keyarr[A_Index]
+clipboard := clip
+SB_SetText("Copied current layout to clipboard")
+return
+
+ButtonReload:
+Reload
+
+GuiEscape:
+GuiClose:
+ExitApp
