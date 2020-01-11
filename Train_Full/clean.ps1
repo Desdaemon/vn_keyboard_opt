@@ -144,7 +144,7 @@ $rules.Ê  = "Ee"
 $rules.Ô  = "Oo"
 $rules.Ơ  = "Ow"
 
-$file  = Get-Content -Path "test.txt"
+$file  = Get-Content -Path $args[0]
 # $file  = "Ước gì"
 $sac   = [regex]'(ướ|á|ắ|ấ|í|ú|ứ|é|ế|ó|ố|ớ|ý|Ứo|Á|Ắ|Ấ|Í|Ú|Ứ|É|Ế|Ó|Ố|Ớ|Ý)(\w*)'
 $huyen = [regex]'(ườ|à|ằ|ầ|ì|ù|ừ|è|ề|ò|ồ|ờ|ỳ|Ườ|À|Ằ|Ầ|Ì|Ù|Ừ|È|Ề|Ò|Ồ|Ờ|Ỳ)(\w*)'
@@ -172,20 +172,20 @@ $nang_cb = {
     $rules[$args[0].Groups[1].Value] + $args[0].Groups[2].Value + 'j'
 }
 
-echo "1/6"
+Write-Progress -Activity "Bo dau sac" -PercentComplete 0
 $file = $sac.Replace($file, $sac_cb)
-echo "2/6"
+Write-Progress -Activity "Bo dau huyen" -PercentComplete 17
 $file = $huyen.Replace($file, $huyen_cb)
-echo "3/6"
+Write-Progress -Activity "Bo dau hoi" -PercentComplete 33
 $file = $hoi.Replace($file, $hoi_cb)
-echo "4/6"
+Write-Progress -Activity "Bo dau nga" -PercentComplete 50
 $file = $nga.Replace($file, $nga_cb)
-echo "5/6"
+Write-Progress -Activity "Bo dau huyen" -PercentComplete 67
 $file = $nang.Replace($file, $nang_cb)
-echo "6/6"
+Write-Progress -Activity "Bo dau huyen" -PercentComplete 83
 $file = $ngang.Replace($file, $ngang_cb)
 $file = $file.Replace('đ', 'dd')
 $file = $file.Replace('Đ', 'Dd')
-Set-Content -Path "test.txt" -Value $file
-echo "Done"
+Set-Content -Path "$args.converted.txt" -Value $file
+echo "Xong"
 
